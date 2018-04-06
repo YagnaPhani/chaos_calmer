@@ -1,0 +1,37 @@
+Index: compat-wireless-2015-03-09/drivers/net/wireless/ath/ath9k/debug.c
+===================================================================
+--- compat-wireless-2015-03-09.orig/drivers/net/wireless/ath/ath9k/debug.c
++++ compat-wireless-2015-03-09/drivers/net/wireless/ath/ath9k/debug.c
+@@ -624,8 +624,13 @@ static int read_file_xmit(struct seq_fil
+ static void print_queue(struct ath_softc *sc, struct ath_txq *txq,
+ 			struct seq_file *file)
+ {
++		seq_printf(file, "(%s): %d ", "cwmin", sc->sc_ah->txq[txq->axq_qnum].tqi_cwmin);
++		seq_printf(file, "(%s): %d ", "cwmax", sc->sc_ah->txq[txq->axq_qnum].tqi_cwmax);
++		seq_printf(file, "(%s): %d ", "aifs", sc->sc_ah->txq[txq->axq_qnum].tqi_aifs);
++		seq_printf(file, "(%s): %d ", "burst", sc->sc_ah->txq[txq->axq_qnum].tqi_burstTime);
+ 	ath_txq_lock(sc, txq);
+ 
++	seq_printf(file, "%s: %d ", "mac qnum", txq->mac80211_qnum);
+ 	seq_printf(file, "%s: %d ", "qnum", txq->axq_qnum);
+ 	seq_printf(file, "%s: %2d ", "qdepth", txq->axq_depth);
+ 	seq_printf(file, "%s: %2d ", "ampdu-depth", txq->axq_ampdu_depth);
+@@ -639,6 +644,7 @@ static int read_file_queues(struct seq_f
+ {
+ 	struct ieee80211_hw *hw = dev_get_drvdata(file->private);
+ 	struct ath_softc *sc = hw->priv;
++        struct ath_hw *ah = sc->sc_ah;
+ 	struct ath_txq *txq;
+ 	int i;
+ 	static const char *qname[4] = {
+@@ -648,6 +654,10 @@ static int read_file_queues(struct seq_f
+ 	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
+ 		txq = sc->tx.txq_map[i];
+ 		seq_printf(file, "(%s):  ", qname[i]);
++	        /*seq_printf(file, "(%s): %u ", "cwmin", ah->txq[i].tqi_cwmin);
++		seq_printf(file, "(%s): %u ", "cwmax", ah->txq[i].tqi_cwmax);
++	        seq_printf(file, "(%s): %u ", "aifs", ah->txq[i].tqi_aifs);
++		seq_printf(file, "(%s): %u ", "burst", ah->txq[i].tqi_burstTime);*/
+ 		print_queue(sc, txq, file);
+ 	}
+ 
